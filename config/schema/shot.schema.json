@@ -1,0 +1,23 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Juno Shot Override",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "format": {
+            "$ref": "common.schema.json#/$defs/format"
+        },
+        "frames": {
+            "$ref": "common.schema.json#/$defs/frames"
+        },
+        "color": {
+            "$ref": "common.schema.json#/$defs/color"
+        },
+        "fx": {
+            "$ref": "common.schema.json#/$defs/fx"
+        },
+        "$schema": {
+            "type": "string"
+        }
+    }
+}

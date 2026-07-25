@@ -1,0 +1,8 @@
+{
+    "$schema": "../schema/shot.schema.json",
+    "frames": {
+        "handles": {
+            "head": 24
+        }
+    }
+}
