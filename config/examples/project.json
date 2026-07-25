@@ -1,4 +1,5 @@
 {
+    "$schema": "../schema/project.schema.json",
     "schema_version": 1,
     "pipeline_version": "0.1.0",
     "show": {
@@ -41,7 +42,7 @@
         "shot": [
             "prv",
             "lay",
-            "anim",
+            "anm",
             "cfx",
             "fx",
             "lgt",
@@ -51,9 +52,8 @@
     "fx": {
         "geo_format": "bgeo.sc",
         "volume_format": "vdb",
-        "cache_tier": "scratch",
         "retention_days": 30,
-        "sim_substep_default": 1
+        "sim_substeps_default": 1
     },
     "dcc": {
         "houdini": "22.0",

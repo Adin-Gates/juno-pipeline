@@ -1,0 +1,236 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Juno Project Config",
+    "type": "object",
+    "properties": {
+        "show": {
+            "type": "object",
+            "description": "Identity of the show this config belongs to.",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "description": "Short uppercase show code, e.g. 'DEMO'. Used in paths and filenames. Letters and digits only, starts with a letter.",
+                    "pattern": "^[A-Z][A-Z0-9]{1,9}$"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Long form show name, e.g. 'Demo Show'."
+                },
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "active",
+                        "archived"
+                    ],
+                    "description": "Production status of the show.",
+                    "default": "active"
+                }
+            },
+            "required": [
+                "code",
+                "title"
+            ]
+        },
+        "format": {
+            "type": "object",
+            "description": "Show formatting.",
+            "properties": {
+                "fps": {
+                    "type": "integer",
+                    "description": "Show's default frames per second.",
+                    "exclusiveMinimum": 0,
+                    "default": 24
+                },
+                "resolution": {
+                    "type": "array",
+                    "description": "Show's default resolution.",
+                    "items": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0
+                    },
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "default": [
+                        1920,
+                        1080
+                    ]
+                },
+                "pixel_aspect": {
+                    "type": "number",
+                    "description": "Show's default pixel aspect ratio. 1.0 for square pixels.",
+                    "default": 1.0
+                },
+                "proxy_scales": {
+                    "type": "array",
+                    "description": "Reduced resolution image versions to speed up non-final reviews. Is a fraction of the default resolution.",
+                    "items": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "maximum": 1
+                    },
+                    "default": [
+                        0.5,
+                        0.25
+                    ]
+                }
+            }
+        },
+        "frames": {
+            "type": "object",
+            "description": "Default timeline settings.",
+            "properties": {
+                "start": {
+                    "type": "integer",
+                    "description": "Default starting frame for all shots.",
+                    "exclusiveMinimum": 0,
+                    "default": 1001
+                },
+                "padding": {
+                    "type": "integer",
+                    "description": "Number of digits forced in frame number, e.g '1' with a padding of 4 will display as '0001'.",
+                    "exclusiveMinimum": 0,
+                    "default": 4
+                },
+                "handles": {
+                    "type": "object",
+                    "description": "Number of frames to add to the start and end of each shot.",
+                    "properties": {
+                        "head": {
+                            "type": "integer",
+                            "description": "Number of frames to add before a given shot.",
+                            "minimum": 0,
+                            "default": 8
+                        },
+                        "tail": {
+                            "type": "integer",
+                            "description": "Number of frames to add after a given shot.",
+                            "minimum": 0,
+                            "default": 8
+                        }
+                    }
+                }
+            }
+        },
+        "color": {
+            "type": "object",
+            "description": "Show's default color space settings.",
+            "properties": {
+                "ocio_config": {
+                    "type": "string",
+                    "description": "File path to the ocio_config.",
+                    "default": "{show_root}/_pipeline/config/ocio/config.ocio"
+                },
+                "working_space": {
+                    "type": "string",
+                    "description": "Working color space.",
+                    "default": "ACEScg"
+                },
+                "display": {
+                    "type": "string",
+                    "description": "Display color space.",
+                    "default": "sRGB - Display"
+                },
+                "view": {
+                    "type": "string",
+                    "description": "Viewing color space.",
+                    "default": "ACES 2.0 - SDR Video"
+                }
+            }
+        },
+        "departments": {
+            "type": "object",
+            "description": "Which asset and shot departments will be included in this show's pipeline.",
+            "properties": {
+                "asset": {
+                    "type": "array",
+                    "description": "Short codes for which asset departments to include in this show's pipeline.",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "mod",
+                            "rig",
+                            "shd"
+                        ]
+                    },
+                    "default": [
+                        "mod",
+                        "rig",
+                        "shd"
+                    ]
+                },
+                "shot": {
+                    "type": "array",
+                    "description": "Short code for which shot departments to include in this show's pipeline.",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "prv",
+                            "lay",
+                            "anm",
+                            "cfx",
+                            "fx",
+                            "lgt",
+                            "cmp"
+                        ]
+                    },
+                    "default": [
+                        "prv",
+                        "lay",
+                        "anm",
+                        "cfx",
+                        "fx",
+                        "lgt",
+                        "cmp"
+                    ]
+                }
+            }
+        },
+        "fx": {
+            "type": "object",
+            "description": "Show default FX caching settings.",
+            "properties": {
+                "geo_format": {
+                    "type": "string",
+                    "description": "Houdini default geo format. Normally 'bgeo.sc'.",
+                    "default": "bgeo.sc"
+                },
+                "volume_format": {
+                    "type": "string",
+                    "description": "Houdini default volume format. Normally 'vdb'.",
+                    "default": "vdb"
+                },
+                "retention_days": {
+                    "type": "integer",
+                    "description": "Number of days before low tier caches are eligible for deletion.",
+                    "exclusiveMinimum": 0,
+                    "default": 30
+                },
+                "sim_substeps_default": {
+                    "type": "integer",
+                    "description": "Houdini default sim substep count.",
+                    "exclusiveMinimum": 0,
+                    "default": 1
+                }
+            }
+        },
+        "dcc": {
+            "type": "object",
+            "description": "Required production software versions.",
+            "properties": {
+                "houdini": {
+                    "type": "string",
+                    "description": "Required Houdini version for this show.",
+                    "default": "22.0"
+                },
+                "maya": {
+                    "type": "string",
+                    "description": "Required Maya version for this show.",
+                    "default": "2026"
+                }
+            }
+        }
+    },
+    "required": [
+        "show"
+    ]
+}
