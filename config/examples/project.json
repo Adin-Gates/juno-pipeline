@@ -1,0 +1,50 @@
+{
+    "schema_version": 1,
+    "pipeline_version": "0.1.0",
+    "show": {
+        "code": "DEMO",
+        "title": "Demo Show",
+        "status": "active"
+    },
+    "format": {
+        "fps": 24,
+        "resolution": [
+            1920,
+            1080
+        ],
+        "pixel_aspect": 1.0,
+        "proxy_scales": [
+            0.5,
+            0.25
+        ]
+    },
+    "frames": {
+        "start": 1001,
+        "padding": 4,
+        "handles": {
+            "head": 8,
+            "tail": 8
+        }
+    },
+    "color": {
+        "ocio_config": "{show_root}/_pipeline/config/ocio/config.ocio",
+        "working_space": "ACEScg",
+        "display": "sRGB - Display",
+        "view": "ACES 2.0 - SDR Video"
+    },
+    "departments": {
+        "asset": ["mod","rig","shd"],
+        "shot": ["prv","lay","anim","cfx","fx","lgt","cmp"]
+    },
+    "fx": {
+        "geo_format": "bgeo.sc",
+        "volume_format": "vdb",
+        "cache_tier": "scratch",
+        "retention_days": 30,
+        "sim_substep_default": 1
+    },
+    "dcc": {
+        "houdini": "22.0",
+        "maya": "2026"
+    }
+}
