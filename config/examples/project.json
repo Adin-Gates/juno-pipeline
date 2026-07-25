@@ -33,8 +33,20 @@
         "view": "ACES 2.0 - SDR Video"
     },
     "departments": {
-        "asset": ["mod","rig","shd"],
-        "shot": ["prv","lay","anim","cfx","fx","lgt","cmp"]
+        "asset": [
+            "mod",
+            "rig",
+            "shd"
+        ],
+        "shot": [
+            "prv",
+            "lay",
+            "anim",
+            "cfx",
+            "fx",
+            "lgt",
+            "cmp"
+        ]
     },
     "fx": {
         "geo_format": "bgeo.sc",
