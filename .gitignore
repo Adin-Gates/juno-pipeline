@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Editors
+.idea/
+*.swp
+
+# Pipeline — machine-specific config, never commit
+config/site.json
+
+# Houdini backup files
+*.hip.bak
+*.hiplc.bak
+*.hda.bak
+backup/
+houdini.env
