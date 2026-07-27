@@ -4,5 +4,8 @@
         "handles": {
             "head": 24
         }
+    },
+    "fx": {
+        "retention_days": 7
     }
 }
