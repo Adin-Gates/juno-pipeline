@@ -9,7 +9,7 @@ Requires Python 3.13.
     source .venv/bin/activate        # Mac/Linux
     source .venv/Scripts/activate    # Windows Git Bash
 
-    pip install -r requirements.txt
+    pip install -e ".[dev]"
 
 
 ### Every session
@@ -18,9 +18,9 @@ Requires Python 3.13.
     source .venv/bin/activate        # Mac/Linux
     source .venv/Scripts/activate    # Windows Git Bash
 
-    pip install -r requirements.txt  # only if requirements.txt changed
+    pip install -e ".[dev]"          # only if packages have been added to dependencies
 
 
 ### After installing a new package
-    pip freeze > requirements.txt
-    git add requirements.txt && git commit -m "..."
+   add package to pyproject.toml under "dependencies" if it is run dependend
+   add package to pyproject.toml under "project.optional-dependencies" if it is dev only
