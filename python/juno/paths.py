@@ -1,5 +1,6 @@
 import os
-from juno.config import load_config
+import json
+from juno.utils import load_config
 from pathlib import Path
 
 
@@ -29,6 +30,3 @@ def resolve_template(template_name, **tokens):
     show_root = get_show_root()
 
     return show_root / result
-
-x = resolve_template("shot_work_dir", show_code="DEMO", sequence="SQ010", shot="SH0010", department="fx")
-print(x)

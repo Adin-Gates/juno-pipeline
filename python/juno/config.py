@@ -1,5 +1,7 @@
 import json
 from pathlib import Path
+from juno.utils import load_config
+from juno.paths import resolve_template, get_show_root
 
 # Takes a given string and returns it with green coloring
 def green_text(text):
@@ -8,18 +10,6 @@ def green_text(text):
 # Takes a given string and returns it with red coloring
 def red_text(text):
     return f"\033[91m{text}\033[0m"
-
-
-# load_config : takes a path to a JSON file and returns said JSON file as a dict without the "$schema"
-def load_config(path):
-
-    with open(path) as f:
-        data = json.load(f)
-
-    data.pop("$schema", None)
-
-    return data
-
 
 
 # extract_deep_value : takes a key and a dictionary, searches a nested dictionary to extract the value of the key if the key exists
@@ -145,8 +135,26 @@ def project_config_resolver(project_path, shot_path=None):
     return project_resolved
 
 
+# shot_resolver : takes in the show_code, sequence, and shot and then returns the resolved config
+def shot_resolver(show_code, sequence, shot):
+
+    shot_path = resolve_template("shot_config_file",show_code=show_code,sequence=sequence,shot=shot)
+
+    project_path = resolve_template("project_config_file",show_code=show_code)
+
+    if shot_path.exists():
+        return project_config_resolver(project_path, shot_path)
+    else:
+        return project_config_resolver(project_path)
+
+
+
+
+
+
 if __name__ == "__main__":
-    print_dict(load_defaults())
+    #print_dict(load_defaults())
+    shot_resolver("Bobo", "A", "140")
 
 
 
