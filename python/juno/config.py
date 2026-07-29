@@ -1,12 +1,5 @@
 import json
-
-
-with open("/Users/adingates/dev/juno-pipeline/config/examples/project.json") as f:
-    config = json.load(f)
-
-with open("/Users/adingates/dev/juno-pipeline/config/examples/shot.json") as f:
-    shot = json.load(f)
-    shot.pop("$schema", None)
+from pathlib import Path
 
 # Takes a given string and returns it with green coloring
 def green_text(text):
@@ -16,6 +9,46 @@ def green_text(text):
 def red_text(text):
     return f"\033[91m{text}\033[0m"
 
+
+# load_config : takes a path to a JSON file and returns said JSON file as a dict without the "$schema"
+def load_config(path):
+
+    with open(path) as f:
+        data = json.load(f)
+
+    data.pop("$schema", None)
+
+    return data
+
+
+
+# extract_deep_value : takes a key and a dictionary, searches a nested dictionary to extract the value of the key if the key exists
+def extract_deep_value(deep_key, dictionary):
+
+    for key, value in dictionary.items():
+
+        if str(key) == str(deep_key):
+            return value
+
+        elif isinstance(value, dict):              
+            deep_value = extract_deep_value(deep_key, value)
+
+            if deep_value is not None:
+                return deep_value
+
+
+
+# extract refs : given a reference (JSON) string and the common dictionary to search. This will return the referenced value
+def extract_refs(ref_string, dict):
+
+    split_string = ref_string.split("/")[1:]
+
+    current = dict
+
+    for i in split_string:
+        current = current[i]
+
+    return current
 
 
 # print_dict is a function that prints out all of the keys and values of a given dictionary, including nested dictionaries.
@@ -37,9 +70,6 @@ def print_dict(config, prefix=""):
         print(red_text("'print_dict' Requires a dictionary. No dictionary given."))
             
         
-
-
-
 # deep_merge takes two dictionaries, a base and an override, and replaces the values of the base dictionary with the override. This worked on nested dictionaries.
 def deep_merge(base, override):
 
@@ -48,29 +78,76 @@ def deep_merge(base, override):
     for key, value in override.items():
 
         if isinstance(value, dict):
-
-            #print(f"value is {value}")                                                                            #Debugging print statement
-            #print(f"base is {result[key]}")                                                                       #Debugging print statement
-            
             result[key] = deep_merge(result[key], value)
 
         else:
-
-            
-             
-            #print(f"Overriding base value of '{key}' from {red_text(result[key])} to {green_text(value)}")        #Debugging print statement
-
             result[key] = value
-
 
     return result
 
 
+# extract_defaults : Takes in the project schema and the common schema to create a dictionary with all default values
+def extract_defaults(schema, common):
 
-#print_dict(config)
-new_config = deep_merge(config, shot)
-#print(config)
-print_dict(new_config)
+    if "default" in schema:
+        return schema["default"]
+
+
+    if "$ref" in schema:
+        resolved = extract_refs(schema["$ref"], common)
+        return extract_defaults(resolved, common)
+
+    result = {}
+
+    properties = schema.get("properties", {})
+
+    for key, subschema in properties.items():
+        extracted = extract_defaults(subschema, common)
+        if extracted != {}:
+            result[key] = extracted
+
+    return result
+
+
+# load_defaults : using pathlib this function finds the project.schema and the common.schema and loads in a config with all default values
+def load_defaults():
+
+    schema_dir = Path(__file__).parent.parent.parent / "config" / "schema"
+    project_schema_path = schema_dir / "project.schema.json"
+    common_schema_path = schema_dir / "common.schema.json"
+
+
+    project_schema = load_config(project_schema_path)
+    common_schema = load_config(common_schema_path)
+
+    project_default = extract_defaults(project_schema, common_schema)
+
+    return project_default
+
+
+
+# project_config_resolver : currently takes the path to the project and shot jsons and layers them onto the default values to give us a resolved config
+def project_config_resolver(project_path, shot_path=None):
+
+    project_default = load_defaults()
+
+    project = load_config(project_path)
+    
+    project_resolved = deep_merge(project_default, project)
+
+    if shot_path is not None:
+
+        shot = load_config(shot_path)
+
+        shot_resolved = deep_merge(project_resolved, shot)
+        return shot_resolved
+
+    return project_resolved
+
+
+if __name__ == "__main__":
+    print_dict(load_defaults())
+
 
 
 
