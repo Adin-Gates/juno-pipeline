@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from juno.utils import load_config
-from juno.paths import resolve_template, get_show_root
+from juno.paths import resolve_template, get_show_root, get_pipeline_root
 
 # Takes a given string and returns it with green coloring
 def green_text(text):
@@ -102,7 +102,7 @@ def extract_defaults(schema, common):
 # load_defaults : using pathlib this function finds the project.schema and the common.schema and loads in a config with all default values
 def load_defaults():
 
-    schema_dir = Path(__file__).parent.parent.parent / "config" / "schema"
+    schema_dir = get_pipeline_root() / "config" / "schema"
     project_schema_path = schema_dir / "project.schema.json"
     common_schema_path = schema_dir / "common.schema.json"
 
