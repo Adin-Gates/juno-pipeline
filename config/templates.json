@@ -1,5 +1,8 @@
 {
     "shot_work_dir": "{show_code}/sequences/{sequence}/{shot}/{department}/_work",
     "shot_config_file": "{show_code}/sequences/{sequence}/{shot}/config/shot.json",
-    "project_config_file": "{show_code}/config/project.json"
+    "project_config_file": "{show_code}/config/project.json",
+    "shot_publish_dir": "{show_code}/sequences/{sequence}/{shot}/{department}/_publish",
+    "sequences_dir": "{show_code}/sequences",
+    "assets_dir": "{show_code}/assets"
 }
