@@ -136,9 +136,9 @@ def project_config_resolver(project_path, shot_path=None):
 
 
 # shot_resolver : takes in the show_code, sequence, and shot and then returns the resolved config
-def shot_resolver(show_code, sequence, shot):
+def shot_resolver(show_code, sequence_code, shot_code):
 
-    shot_path = resolve_template("shot_config_file",show_code=show_code,sequence=sequence,shot=shot)
+    shot_path = resolve_template("shot_config_file",show_code=show_code,sequence_code=sequence_code,shot_code=shot_code)
 
     project_path = resolve_template("project_config_file",show_code=show_code)
 
