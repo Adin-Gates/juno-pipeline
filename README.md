@@ -1,4 +1,7 @@
 # Juno-Pipeline
+ [![Tests](https://github.com/Adin-Gates/juno-pipeline/actions/workflows/tests.yml/badge.svg)](https://github.com/Adin-Gates/juno-pipeline/actions/workflows/tests.yml)
+ ![Python](https://img.shields.io/badge/python-3.13-blue)
+ ![License](https://img.shields.io/badge/license-MIT-green)
 
 A Houdini-centric VFX and animation pipeline built around layered configuration, resolved paths, and reproducible show structure. Juno treats Houdini as the center of the pipeline and other DCCs (Maya, etc.) as clients, and is designed to run natively across macOS, Linux, and Windows.
 
