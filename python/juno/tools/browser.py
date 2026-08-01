@@ -48,6 +48,8 @@ class JunoBrowser(QWidget):
         show_code = item.data(Qt.UserRole)
         self.current_show = show_code
         self.sequence_list_widget.clear()
+        self.shot_list_widget.clear()
+        self.config_display.clear()
 
         sequences = list_sequences(show_code)
 
@@ -65,6 +67,7 @@ class JunoBrowser(QWidget):
 
         self.current_sequence = sequence_code
         self.shot_list_widget.clear()
+        self.config_display.clear()
 
         shots = list_shots(show_code, sequence_code)
 
