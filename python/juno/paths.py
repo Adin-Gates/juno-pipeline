@@ -44,3 +44,59 @@ def resolve_template(template_name, **tokens):
     show_root = get_show_root()
 
     return show_root / result
+
+
+
+def get_show_title(show_code):
+
+    config_file_path = resolve_template("project_config_file",show_code=show_code)
+
+    project_config = load_config(config_file_path)
+
+    title = project_config["show"]["title"]
+
+    return title
+
+
+def list_shows():
+
+    show_root = get_show_root()
+    all_entries = show_root.iterdir()
+    show_list = []
+
+    for i in all_entries:
+        if i.is_dir():
+            show_code = i.name
+            show_list.append(show_code)
+
+    return show_list
+
+
+def list_sequences(show_code):
+
+    sequences_dir = resolve_template("sequences_dir",show_code=show_code)
+    all_entries = sequences_dir.iterdir()
+    sequence_list = []
+
+    for i in all_entries:
+        if i.is_dir():
+            sequence_code = i.name
+            sequence_list.append(sequence_code)
+
+    return sequence_list
+
+
+def list_shots(show_code, sequence_code):
+
+    sequence_code_dir = resolve_template("sequence_code_dir",show_code=show_code, sequence_code=sequence_code)
+    all_entries = sequence_code_dir.iterdir()
+    shot_list = []
+
+    for i in all_entries:
+        if i.is_dir():
+            shot_code = i.name
+            shot_list.append(shot_code)
+
+    return shot_list
+
+
