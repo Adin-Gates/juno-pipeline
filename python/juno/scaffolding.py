@@ -30,6 +30,9 @@ def scaffold_show(show_code, title):
     if show_code_dir.exists():
         raise FileExistsError ("Show already exists. Cancelling show scaffolding.")
 
+    if show_code.strip() == "":
+        raise ValueError ("Show code is empty.")
+
     # Creates the show_code directory at the show root
     show_code_dir.mkdir(parents=True,exist_ok=True)
 
@@ -57,7 +60,10 @@ def scaffold_sequence(show_code, sequence_code):
 
     sequence_code_dir = resolve_template("sequence_code_dir",show_code=show_code, sequence_code=sequence_code)
 
-    if not show_code_dir.exists():
+    if sequence_code.strip() == "":
+        raise ValueError ("Sequence code is empty.")
+
+    if not show_code_dir.exists() or show_code.strip() == "":
         raise FileNotFoundError ("Show doesn't exists. Cancelling sequence scaffolding.")
 
     if sequence_code_dir.exists():
@@ -86,10 +92,10 @@ def scaffold_shot(show_code, sequence_code, shot_code):
 
 
 
-    if not show_code_dir.exists():
+    if not show_code_dir.exists() or show_code.strip() == "":
         raise FileNotFoundError ("Show doesn't exists. Cancelling shot scaffolding.")
 
-    if not sequence_code_dir.exists():
+    if not sequence_code_dir.exists() or sequence_code.strip() == "":
         raise FileNotFoundError ("Sequence doesn't exists. Cancelling shot scaffolding.")
 
     if shot_code_dir.exists():
