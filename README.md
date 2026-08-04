@@ -5,7 +5,7 @@
 
 A Houdini-centric VFX and animation pipeline built around layered configuration, resolved paths, and reproducible show structure. Juno treats Houdini as the center of the pipeline and other DCCs (Maya, etc.) as clients, and is designed to run natively across macOS, Linux, and Windows.
 
-> **Status:** Active development. The configuration and path-resolution layers and the show/sequence/shot scaffolding tools are complete and tested. Publishing, schema validation at load time, and DCC integration are on the roadmap below.
+> **Status:** Active development. The configuration and path-resolution layers, the show/sequence/shot scaffolding tools, and the first PySide GUI tools (a browser and a show creator) are complete and tested, and the pipeline runs on its target Linux platform. Schema validation at load time, publishing, and deeper DCC integration are on the roadmap below.
 
 ---
 
@@ -17,6 +17,7 @@ Juno is both a working pipeline and a study in doing pipeline architecture the w
 - **Configuration is layered and sparse.** A resolved config is built by merging, most-specific-wins: pipeline defaults → project → shot. Override files contain *only* what differs; a shot with no overrides has no override file at all.
 - **Single source of truth.** Pipeline defaults are extracted directly from the JSON Schema that documents and validates them, so defaults and documentation can never drift apart. Shared schema definitions are referenced (`$ref`), never duplicated.
 - **Publishes are immutable and versioned.** Published data is append-only and never overwritten — new work becomes a new version. (Publishing tooling is on the roadmap; the folder structure that supports it is already scaffolded.)
+- **Library vs. application separation.** Core resolution logic is a lightweight library that imports no GUI toolkit, so it runs headless inside Houdini or on a render farm. GUI tools live in a separate `tools/` layer that depends on the library — never the reverse.
 - **Site vs. show separation.** Machine-specific locations (where `/show` lives, where the pipeline lives) come from the environment. Show-specific settings come from config. Code reads both and hardcodes neither.
 - **Fail loudly, fail clearly.** Missing environment, missing parents, and name collisions raise immediately with actionable messages, rather than producing broken structure downstream.
 
@@ -24,7 +25,7 @@ Juno is both a working pipeline and a study in doing pipeline architecture the w
 
 ## Architecture
 
-Juno is organized into three layers, each building on the one below it.
+Juno is organized into layers, each building on the one below it. The core library (config, paths, scaffolding) is importable headless; the GUI tools sit on top and depend on it.
 
 ### 1. Configuration resolution
 
@@ -55,6 +56,15 @@ Create consistent show structure on disk, using the two layers above.
 
 Every scaffold operation checks that its parent exists and that it does not already exist, so orphaned or clobbered structure is impossible.
 
+### 4. Tools (GUI)
+
+PySide6 tools that sit on top of the library, in `python/juno/tools/`.
+
+- **Browser** — a three-column drill-down (shows → sequences → shots) that reads live from the pipeline and displays any shot's fully-resolved config. A face on top of the entire resolution stack.
+- **Show creator** — a form that creates new shows through `scaffold_show`, with input validation and graceful error reporting.
+
+The tools import from the library; nothing in the library imports the tools, so the core stays headless-importable.
+
 ---
 
 ## The resolution flow
@@ -77,8 +87,9 @@ juno-pipeline/
 ├── python/juno/            # the juno package
 │   ├── utils.py            # shared low-level helpers (load_config)
 │   ├── config.py           # config resolution, deep merge, default extraction
-│   ├── paths.py            # environment roots, template resolution
-│   └── scaffolding.py      # show / sequence / shot creation
+│   ├── paths.py            # environment roots, template resolution, listing
+│   ├── scaffolding.py      # show / sequence / shot creation
+│   └── tools/              # PySide6 GUI tools (browser, creator)
 ├── config/
 │   ├── schema/             # JSON Schemas (common, project, shot, asset)
 │   ├── templates.json      # path templates
@@ -114,19 +125,28 @@ Run the tests:
 pytest
 ```
 
+Launch a GUI tool (with the venv active and roots set):
+
+```bash
+python python/juno/tools/browser.py
+python python/juno/tools/creator.py
+```
+
 See [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for the full session workflow.
 
 ---
 
 ## Tech stack
 
-- **Language:** Python 3.13 (VEX and PyQt/PySide planned)
+- **Language:** Python 3.13 (VEX planned)
+- **GUI:** PySide6 (Qt)
 - **Primary DCC:** Houdini 22 / Solaris; Maya as a client
 - **Scene description:** USD (planned integration)
 - **Color:** OCIO / ACEScg
 - **Config validation:** JSON Schema (`jsonschema`)
 - **Testing:** pytest
-- **Reference:** VFX Reference Platform CY2026
+- **CI:** GitHub Actions (Linux, Python 3.13)
+- **Target platform:** AlmaLinux 9 (VFX Reference Platform CY2026); developed on macOS
 
 ---
 
@@ -140,20 +160,25 @@ See [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for the full session workflow.
 - [x] Resolve a shot's full config by identifier
 - [x] Show / sequence / shot scaffolding with existence guards
 - [x] Test suite for config, paths, and scaffolding
+- [x] Continuous integration (GitHub Actions, green on Linux)
+- [x] PySide browser (drill-down navigation + resolved-config display)
+- [x] PySide show creator (input validation + error handling)
+- [x] Validated running on the target Linux platform (AlmaLinux 9)
 
 **Planned**
 - [ ] Schema validation at load time (fail loudly on malformed config)
-- [ ] Naming-convention enforcement in scaffolding
+- [ ] Naming-convention enforcement in scaffolding and tools
+- [ ] Extend the creator to sequences and shots
 - [ ] Immutable, versioned publish tooling
 - [ ] Cache-tier promotion (scratch → shared → publish)
 - [ ] Per-show pipeline versioning
 - [ ] USD / Solaris layer strategy
 - [ ] Houdini packages and HDA publishing workflow
-- [ ] PySide browser / publish tools
-- [ ] Cross-platform validation on Linux and Windows
+- [ ] PySide tools running inside Houdini
+- [ ] Cross-platform validation on Windows
 
 ---
 
 ## Development notes
 
-Juno is developed on macOS with a Windows/Linux workstation targeted for Houdini simulation work. The tool stack (Houdini, Maya, USD, Python) runs natively across all three platforms; the pipeline is written to be path-root- and separator-agnostic so the same code runs everywhere.
+Juno is developed on macOS, with an AlmaLinux 9 workstation as the production target for Houdini simulation work. The tool stack (Houdini, Maya, USD, Python) runs natively across all three platforms; the pipeline is written to be path-root- and separator-agnostic so the same code runs everywhere. The core library imports no GUI toolkit, so it can be imported headless inside Houdini or on a render farm; the PySide tools are a separate layer on top.
