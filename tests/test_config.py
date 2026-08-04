@@ -2,6 +2,7 @@ from juno.config import deep_merge, extract_refs, extract_defaults, validate_con
 from juno.paths import resolve_template, get_show_root, get_pipeline_root
 from juno.utils import load_schema, load_config
 import pytest
+from pathlib import Path
 
 
 
@@ -71,8 +72,10 @@ def test_ref_defaults():
 
 # VALIDATE CONFIG TESTS
 
-def test_valid_config():
+def test_valid_config(monkeypatch):
     project = {"show": {"code": "DEMO", "title": "Demo Show"}, "format": {"fps": 24}, "pipeline_version": "0.1.0"}
+
+    monkeypatch.setenv("JUNO_PIPELINE_ROOT", str(Path(__file__).parent.parent))
 
     project_schema_path = get_pipeline_root() / "config" / "schema" / "project.schema.json"
     common_schema_path = get_pipeline_root() / "config" / "schema" / "common.schema.json"
@@ -83,8 +86,10 @@ def test_valid_config():
     result = validate_config(project,project_schema,common_schema)
     assert result == None
 
-def test_invalid_config():
+def test_invalid_config(monkeypatch):
     project = {"show": {"title": "Demo Show"}, "format": {"fps": 24}, "pipeline_version": "0.1.0"}
+
+    monkeypatch.setenv("JUNO_PIPELINE_ROOT", str(Path(__file__).parent.parent))
 
     project_schema_path = get_pipeline_root() / "config" / "schema" / "project.schema.json"
     common_schema_path = get_pipeline_root() / "config" / "schema" / "common.schema.json"
@@ -96,8 +101,10 @@ def test_invalid_config():
         validate_config(project,project_schema,common_schema)
 
 
-def test_invalid_config_common():
+def test_invalid_config_common(monkeypatch):
     project = {"show": {"title": "Demo Show"}, "format": {"fps": "twenty-four"}, "pipeline_version": "0.1.0"}
+
+    monkeypatch.setenv("JUNO_PIPELINE_ROOT", str(Path(__file__).parent.parent))
 
     project_schema_path = get_pipeline_root() / "config" / "schema" / "project.schema.json"
     common_schema_path = get_pipeline_root() / "config" / "schema" / "common.schema.json"
