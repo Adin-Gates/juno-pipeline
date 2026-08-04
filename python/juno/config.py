@@ -1,15 +1,40 @@
 import json
+from jsonschema import validate, Draft202012Validator
+from referencing import Registry, Resource
+from jsonschema.exceptions import ValidationError
 from pathlib import Path
-from juno.utils import load_config
+from juno.utils import load_config, load_schema
 from juno.paths import resolve_template, get_show_root, get_pipeline_root
+
 
 # Takes a given string and returns it with green coloring
 def green_text(text):
     return f"\033[92m{text}\033[0m"
 
+
 # Takes a given string and returns it with red coloring
 def red_text(text):
     return f"\033[91m{text}\033[0m"
+
+
+# validate_config : Takes in a config and it's schema, raises an error if the config isn't in line with the given schema.
+def validate_config(data, schema, common_schema):
+
+    registry = Registry().with_resource(
+        "common.schema.json",
+        Resource.from_contents(common_schema)
+    )
+
+    validator = Draft202012Validator(schema, registry=registry)
+
+    try:
+        validator.validate(data)
+        print("Validated")
+
+    except ValidationError as e:
+        raise ValueError(f"Config validation failure at {e.json_path}. Message: {e.message}.")
+
+
 
 
 # extract_deep_value : takes a key and a dictionary, searches a nested dictionary to extract the value of the key if the key exists
@@ -120,14 +145,26 @@ def load_defaults():
 def project_config_resolver(project_path, shot_path=None):
 
     project_default = load_defaults()
-
     project = load_config(project_path)
+
+    project_schema_path = get_pipeline_root() / "config" / "schema" / "project.schema.json"
+    common_schema_path = get_pipeline_root() / "config" / "schema" / "common.schema.json"
+
+    project_schema = load_schema(project_schema_path)
+    common_schema = load_schema(common_schema_path)
+
+    validate_config(project, project_schema, common_schema)
     
     project_resolved = deep_merge(project_default, project)
 
     if shot_path is not None:
 
         shot = load_config(shot_path)
+
+        shot_schema_path = get_pipeline_root() / "config" / "schema" / "shot.schema.json"
+        shot_schema = load_schema(shot_schema_path)
+
+        validate_config(shot, shot_schema, common_schema)
 
         shot_resolved = deep_merge(project_resolved, shot)
         return shot_resolved
@@ -153,12 +190,4 @@ def shot_resolver(show_code, sequence_code, shot_code):
 
 
 if __name__ == "__main__":
-    #print_dict(load_defaults())
-    shot_resolver("Bobo", "A", "140")
-
-
-
-
-
-
-    
+    pass

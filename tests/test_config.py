@@ -1,4 +1,7 @@
-from juno.config import deep_merge, extract_refs, extract_defaults
+from juno.config import deep_merge, extract_refs, extract_defaults, validate_config
+from juno.paths import resolve_template, get_show_root, get_pipeline_root
+from juno.utils import load_schema, load_config
+import pytest
 
 
 
@@ -64,3 +67,43 @@ def test_ref_defaults():
     common = {"$defs": {"format": {"default": "value"}}}
     result = extract_defaults(schema, common)
     assert result == {"format": "value"}
+
+
+# VALIDATE CONFIG TESTS
+
+def test_valid_config():
+    project = {"show": {"code": "DEMO", "title": "Demo Show"}, "format": {"fps": 24}, "pipeline_version": "0.1.0"}
+
+    project_schema_path = get_pipeline_root() / "config" / "schema" / "project.schema.json"
+    common_schema_path = get_pipeline_root() / "config" / "schema" / "common.schema.json"
+
+    project_schema = load_schema(project_schema_path)
+    common_schema = load_schema(common_schema_path)
+
+    result = validate_config(project,project_schema,common_schema)
+    assert result == None
+
+def test_invalid_config():
+    project = {"show": {"title": "Demo Show"}, "format": {"fps": 24}, "pipeline_version": "0.1.0"}
+
+    project_schema_path = get_pipeline_root() / "config" / "schema" / "project.schema.json"
+    common_schema_path = get_pipeline_root() / "config" / "schema" / "common.schema.json"
+
+    project_schema = load_schema(project_schema_path)
+    common_schema = load_schema(common_schema_path)
+
+    with pytest.raises(ValueError):
+        validate_config(project,project_schema,common_schema)
+
+
+def test_invalid_config_common():
+    project = {"show": {"title": "Demo Show"}, "format": {"fps": "twenty-four"}, "pipeline_version": "0.1.0"}
+
+    project_schema_path = get_pipeline_root() / "config" / "schema" / "project.schema.json"
+    common_schema_path = get_pipeline_root() / "config" / "schema" / "common.schema.json"
+
+    project_schema = load_schema(project_schema_path)
+    common_schema = load_schema(common_schema_path)
+
+    with pytest.raises(ValueError):
+        validate_config(project,project_schema,common_schema)
