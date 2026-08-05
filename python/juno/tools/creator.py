@@ -4,8 +4,10 @@ from juno.paths import list_shows, get_show_title, list_sequences, list_shots
 from juno.config import shot_resolver
 from juno.scaffolding import scaffold_show, scaffold_sequence, scaffold_shot
 import json
+from PySide6.QtCore import Signal
 
 class ShowCreator(QWidget):
+    created = Signal()
 
     def __init__(self):
         super().__init__()
@@ -56,6 +58,7 @@ class ShowCreator(QWidget):
         try:
             scaffold_show(show_code, title)
             self.feedback_field.setText(f"Created new show {show_code}.")
+            self.created.emit()
 
         except FileExistsError:
             self.feedback_field.setText(f"Show already exists.")
@@ -67,6 +70,7 @@ class ShowCreator(QWidget):
             
 
 class SequenceCreator(QWidget):
+    created = Signal()
 
     def __init__(self, show_code):
         super().__init__()
@@ -115,6 +119,8 @@ class SequenceCreator(QWidget):
         try:
             scaffold_sequence(self.show_code,sequence_code)
             self.feedback_field.setText(f"Created new sequence [{sequence_code}] in {self.show_code}.")
+            self.created.emit()
+
 
         except FileNotFoundError:
             self.feedback_field.setText(f"Show does not exists.")
@@ -133,6 +139,7 @@ class SequenceCreator(QWidget):
 
 
 class ShotCreator(QWidget):
+    created = Signal()
 
     def __init__(self, show_code, sequence_code):
         super().__init__()
@@ -185,6 +192,7 @@ class ShotCreator(QWidget):
         try:
             scaffold_shot(self.show_code,self.sequence_code,shot_code)
             self.feedback_field.setText(f"Created new shot [{shot_code}] in {self.show_code} sequence {self.sequence_code}.")
+            self.created.emit()
 
         except FileNotFoundError:
             self.feedback_field.setText(f"Show or sequence does not exists.")
