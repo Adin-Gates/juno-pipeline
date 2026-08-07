@@ -112,8 +112,8 @@ def scaffold_shot(show_code, sequence_code, shot_code):
 
     # Walks through each department and creates a department directory in the shot directory. Each department directory has a publish and work directory.
     for department in department_list:
-        resolve_template("shot_work_dir",show_code=show_code, sequence_code=sequence_code, shot_code=shot_code, departments=department).mkdir(parents=True,exist_ok=True)
-        resolve_template("shot_publish_dir",show_code=show_code, sequence_code=sequence_code, shot_code=shot_code, departments=department).mkdir(parents=True,exist_ok=True)
+        resolve_template("shot_work_dir",show_code=show_code, sequence_code=sequence_code, shot_code=shot_code, department=department).mkdir(parents=True,exist_ok=True)
+        resolve_template("shot_publish_dir",show_code=show_code, sequence_code=sequence_code, shot_code=shot_code, department=department).mkdir(parents=True,exist_ok=True)
 
 
 

@@ -1,8 +1,9 @@
 {
-    "shot_work_dir": "{show_code}/sequences/{sequence_code}/{shot_code}/{departments}/_work",
+    "shot_work_dir": "{show_code}/sequences/{sequence_code}/{shot_code}/{department}/_work",
     "shot_config_file": "{show_code}/sequences/{sequence_code}/{shot_code}/config/shot.json",
     "project_config_file": "{show_code}/config/project.json",
-    "shot_publish_dir": "{show_code}/sequences/{sequence_code}/{shot_code}/{departments}/_publish",
+    "shot_publish_dir": "{show_code}/sequences/{sequence_code}/{shot_code}/{department}/_publish",
+    "shot_publish_metadata": "{show_code}/sequences/{sequence_code}/{shot_code}/{department}/_publish/{version}/metadata.json",
     "sequences_dir": "{show_code}/sequences",
     "assets_dir": "{show_code}/assets",
     "show_code_dir": "{show_code}",
