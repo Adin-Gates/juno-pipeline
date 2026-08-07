@@ -1,12 +1,21 @@
 {
+    "project_config_file": "{show_code}/config/project.json",
+
+    "show_code_dir": "{show_code}",
+    
     "shot_work_dir": "{show_code}/sequences/{sequence_code}/{shot_code}/{department}/_work",
     "shot_config_file": "{show_code}/sequences/{sequence_code}/{shot_code}/config/shot.json",
-    "project_config_file": "{show_code}/config/project.json",
     "shot_publish_dir": "{show_code}/sequences/{sequence_code}/{shot_code}/{department}/_publish",
     "shot_publish_metadata": "{show_code}/sequences/{sequence_code}/{shot_code}/{department}/_publish/{version}/metadata.json",
+    "shot_code_dir": "{show_code}/sequences/{sequence_code}/{shot_code}",
+
     "sequences_dir": "{show_code}/sequences",
-    "assets_dir": "{show_code}/assets",
-    "show_code_dir": "{show_code}",
     "sequence_code_dir": "{show_code}/sequences/{sequence_code}",
-    "shot_code_dir": "{show_code}/sequences/{sequence_code}/{shot_code}"
+
+    "assets_dir": "{show_code}/assets",
+    "asset_type_dir": "{show_code}/assets/{asset_type}",
+    "asset_name_dir": "{show_code}/assets/{asset_type}/{asset_name}",
+    "asset_work_dir": "{show_code}/assets/{asset_type}/{asset_name}/{department}/_work",
+    "asset_publish_dir": "{show_code}/assets/{asset_type}/{asset_name}/{department}/_publish",
+    "asset_publish_metadata": "{show_code}/assets/{asset_type}/{asset_name}/{department}/_publish/{version}/metadata.json"
 }

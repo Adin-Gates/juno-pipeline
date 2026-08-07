@@ -6,6 +6,40 @@
     "properties": {
         "$schema": {
             "type": "string"
+        },
+        "name": {
+            "type": "string",
+            "description": "Asset name."
+        },
+        "type": {
+            "type": "string",
+            "description": "Asset type. Can be 'character','prop','environment', or 'vehicle'.",
+            "enum": [
+                "character",
+                "prop",
+                "environment",
+                "vehicle"
+            ]
+        },
+        "departments": {
+            "type": "array",
+            "description": "Departments neccesary for creating this asset.",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "mod",
+                    "rig",
+                    "tex"
+                ]
+            },
+            "default": [
+                "mod",
+                "text"
+            ]
         }
-    }
+    },
+    "required": [
+        "name",
+        "type"
+    ]
 }

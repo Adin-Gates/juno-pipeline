@@ -1,0 +1,11 @@
+{
+    "$schema": "../schema/asset.schema.json",
+    "name": "Test Asset",
+    "type": "vehicle",
+    "departments": [
+        "mod",
+        "rig",
+        "tex"
+    ]
+
+}
