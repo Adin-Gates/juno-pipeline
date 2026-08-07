@@ -3,9 +3,9 @@
  ![Python](https://img.shields.io/badge/python-3.13-blue)
  ![License](https://img.shields.io/badge/license-MIT-green)
 
-A Houdini-centric VFX and animation pipeline built around layered configuration, resolved paths, and reproducible show structure. Juno treats Houdini as the center of the pipeline and other DCCs (Maya, etc.) as clients, and is designed to run natively across macOS, Linux, and Windows.
+A Houdini-centric VFX and animation pipeline built around layered configuration, resolved paths, reproducible show structure, and immutable versioned publishing. Juno treats Houdini as the center of the pipeline and other DCCs (Maya, etc.) as clients, and is designed to run natively across macOS, Linux, and Windows.
 
-> **Status:** Active development. The configuration and path-resolution layers (with schema validation at load time), the show/sequence/shot scaffolding tools, and a PySide GUI suite (a browser and in-context creators for every hierarchy level) are complete and tested, and the pipeline runs on its target Linux platform. Publishing and deeper DCC integration are on the roadmap below.
+> **Status:** Active development, and being built alongside a real personal production to keep every feature grounded in genuine need. The configuration and path-resolution layers (with schema validation at load time), the show/sequence/shot scaffolding tools, an immutable versioned publish system, and a PySide GUI suite (a browser and in-context creators) are complete and tested, and the pipeline runs on its target Linux platform. Asset tooling and deeper DCC integration are on the roadmap below.
 
 ---
 
@@ -17,16 +17,16 @@ Juno is both a working pipeline and a study in doing pipeline architecture the w
 - **Configuration is layered and sparse.** A resolved config is built by merging, most-specific-wins: pipeline defaults → project → shot. Override files contain *only* what differs; a shot with no overrides has no override file at all.
 - **Single source of truth.** Pipeline defaults are extracted directly from the JSON Schema that documents and validates them, so defaults and documentation can never drift apart. Shared schema definitions are referenced (`$ref`), never duplicated.
 - **Config is validated at the boundary.** Every config is checked against its schema as it loads — with `$ref`s into the shared schema resolved — so a malformed file fails immediately with a clear message, rather than corrupting a downstream result.
-- **Publishes are immutable and versioned.** Published data is append-only and never overwritten — new work becomes a new version. (Publishing tooling is on the roadmap; the folder structure that supports it is already scaffolded.)
-- **Library vs. application separation.** Core resolution logic is a lightweight library that imports no GUI toolkit, so it runs headless inside Houdini or on a render farm. GUI tools live in a separate `tools/` layer that depends on the library — never the reverse.
+- **Publishes are immutable and versioned.** Published work is copied into a new numbered version folder, never overwritten; version numbers only ever advance; and published files are made read-only at the filesystem level, so immutability is enforced rather than merely trusted.
+- **Library vs. application separation.** Core logic is a lightweight library that imports no GUI toolkit, so it runs headless inside Houdini or on a render farm. GUI tools live in a separate `tools/` layer that depends on the library — never the reverse.
 - **Site vs. show separation.** Machine-specific locations (where `/show` lives, where the pipeline lives) come from the environment. Show-specific settings come from config. Code reads both and hardcodes neither.
-- **Fail loudly, fail clearly.** Missing environment, missing parents, name collisions, and malformed config all raise immediately with actionable messages, rather than producing broken structure downstream.
+- **Fail loudly, fail clearly.** Missing environment, missing parents, name collisions, malformed config, and invalid publish sources all raise immediately with actionable messages, rather than producing broken structure downstream.
 
 ---
 
 ## Architecture
 
-Juno is organized into layers, each building on the one below it. The core library (config, paths, scaffolding) is importable headless; the GUI tools sit on top and depend on it.
+Juno is organized into layers, each building on the one below it. The core library (config, paths, scaffolding, publish) is importable headless; the GUI tools sit on top and depend on it.
 
 ### 1. Configuration resolution
 
@@ -58,12 +58,22 @@ Create consistent show structure on disk, using the two layers above.
 
 Every scaffold operation checks that its parent exists and that it does not already exist, so orphaned or clobbered structure is impossible.
 
-### 4. Tools (GUI)
+### 4. Publishing
+
+Promote finished work from `_work` into an immutable, versioned artifact in `_publish`.
+
+- **`publish`** resolves the target `_publish` directory, determines the next version, creates a new version folder, copies the source in, writes a metadata record (version, timestamp, source, comment, user), and sets the published files read-only.
+- **Version resolution** always advances past the highest existing version — numbers are never reused, so every published version is a permanent, unique identifier.
+- **The read side** — `list_publishes`, `latest_publish`, and `get_publish_metadata` — lets tools query what has been published and read a version's record, without needing to know the folder layout.
+
+Each published version lives in its own folder (`_publish/v001/`, `v002/`, …) alongside a `metadata.json`, so a version's files and its record stay together and the whole version can be listed or archived as a unit.
+
+### 5. Tools (GUI)
 
 PySide6 tools that sit on top of the library, in `python/juno/tools/`.
 
-- **Browser** — a three-column drill-down (shows → sequences → shots) that reads live from the pipeline and displays any shot's fully-resolved config. A face on top of the entire resolution stack.
-- **Creators** — in-context forms for creating a show, sequence, or shot, launched from a "+" on the matching browser column. Each creator receives its parent context from the current selection, validates input, reports errors gracefully, and emits a signal on success so the browser refreshes live. The add buttons are disabled until the required parent is selected, so an item can never be created without a valid parent.
+- **Browser** — a three-column drill-down (shows → sequences → shots) that reads live from the pipeline and displays any shot's fully-resolved config.
+- **Creators** — in-context forms for creating a show, sequence, or shot, launched from a "+" on the matching browser column. Each creator receives its parent context from the current selection, validates input, reports errors gracefully, and emits a signal on success so the browser refreshes live. Add buttons are disabled until the required parent is selected, so an item can never be created without a valid parent.
 
 The tools import from the library; nothing in the library imports the tools, so the core stays headless-importable.
 
@@ -78,7 +88,7 @@ identifiers ──► resolve_template ──► file paths ──► validate �
     shot)                                                         shot, merged)
 ```
 
-The same path resolution also drives scaffolding: identifiers become paths, and paths become created structure.
+The same path resolution also drives scaffolding and publishing: identifiers become paths, and paths become created structure or versioned publishes.
 
 ---
 
@@ -91,6 +101,7 @@ juno-pipeline/
 │   ├── config.py           # config resolution, deep merge, defaults, validation
 │   ├── paths.py            # environment roots, template resolution, listing
 │   ├── scaffolding.py      # show / sequence / shot creation
+│   ├── publish.py          # versioned, immutable publishing + read-side queries
 │   └── tools/              # PySide6 GUI tools (browser, creators)
 ├── config/
 │   ├── schema/             # JSON Schemas (common, project, shot, asset)
@@ -161,15 +172,19 @@ See [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for the full session workflow.
 - [x] Environment-based path roots and template resolution
 - [x] Resolve a shot's full config by identifier
 - [x] Show / sequence / shot scaffolding with existence guards
-- [x] Test suite for config, paths, scaffolding, and validation
+- [x] Immutable, versioned publish system (read-only enforcement + metadata records)
+- [x] Publish read-side queries (list, latest, metadata)
+- [x] Test suite for config, paths, scaffolding, validation, and publishing
 - [x] Continuous integration (GitHub Actions, green on Linux)
 - [x] PySide browser (drill-down navigation + resolved-config display)
 - [x] PySide creators for show, sequence, and shot (in-context, live refresh)
 - [x] Validated running on the target Linux platform (AlmaLinux 9)
 
 **Planned**
+- [ ] Asset pipeline (scaffolding, resolution, and tools for the asset hierarchy)
+- [ ] Publish info surfaced in the browser (versions + metadata per shot)
+- [ ] Multi-file / sequence publishing (e.g. Houdini cache sequences)
 - [ ] Naming-convention enforcement in scaffolding and tools
-- [ ] Immutable, versioned publish tooling
 - [ ] Cache-tier promotion (scratch → shared → publish)
 - [ ] Per-show pipeline versioning
 - [ ] USD / Solaris layer strategy
@@ -181,5 +196,4 @@ See [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for the full session workflow.
 
 ## Development notes
 
-Juno is developed on macOS, with an AlmaLinux 9 workstation as the production target for Houdini simulation work. The tool stack (Houdini, Maya, USD, Python) runs natively across all three platforms; the pipeline is written to be path-root- and separator-agnostic so the same code runs everywhere. The core library imports no GUI toolkit, so it can be imported headless inside Houdini or on a render farm; the PySide tools are a separate layer on top.
-
+Juno is developed on macOS, with an AlmaLinux 9 workstation as the production target for Houdini simulation work, and is being exercised against a real personal production so that features are driven by genuine need rather than speculation. The tool stack (Houdini, Maya, USD, Python) runs natively across all three platforms; the pipeline is written to be path-root- and separator-agnostic so the same code runs everywhere. The core library imports no GUI toolkit, so it can be imported headless inside Houdini or on a render farm; the PySide tools are a separate layer on top.
