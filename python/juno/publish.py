@@ -7,6 +7,7 @@ import os
 import json
 
 
+# next_version : given a publish directory this function will return the next file version to create. Example: if "v001" and "v002" are found then it will return "v003".
 def next_version(publish_directory):
 
     all_entries = publish_directory.iterdir()
@@ -26,7 +27,7 @@ def next_version(publish_directory):
     return next_num
 
 
-
+# list_publishes : given shot and department info this will return a list of existing publish versions in the shot departments "_publish" directory.
 def list_publishes(show_code, sequence_code, shot_code, department):
 
     publish_directory = resolve_template("shot_publish_dir", show_code=show_code,sequence_code=sequence_code,shot_code=shot_code,department=department)
@@ -45,7 +46,7 @@ def list_publishes(show_code, sequence_code, shot_code, department):
     return versions_list
 
 
-
+# latest_publish : given a shot and deparment info this will return the most recent publish version.
 def latest_publish(show_code, sequence_code, shot_code, department):
 
     publish_directory = resolve_template("shot_publish_dir", show_code=show_code,sequence_code=sequence_code,shot_code=shot_code,department=department)
@@ -67,7 +68,7 @@ def latest_publish(show_code, sequence_code, shot_code, department):
     return f"v{max(versions_list):03d}"
 
 
-
+# publish : given a source file, shot and department info this will copy the source file into the shot deparments "_publish" folder as a new version. This will set all published files to read only. Also creates metadata.json where the file is copied to.
 def publish(source, show_code, sequence_code, shot_code, department, comment):
 
     if not Path(source).exists():
@@ -102,7 +103,7 @@ def publish(source, show_code, sequence_code, shot_code, department, comment):
     return Path(published_file_path)
 
 
-
+# get_publish_metadata : given a shot and department info and a version number this will return the metadata for a publish.
 def get_publish_metadata(show_code, sequence_code, shot_code, department, version):
 
     metadata_path = resolve_template("shot_publish_metadata", show_code=show_code, sequence_code=sequence_code, shot_code=shot_code, department=department, version=version)
@@ -116,4 +117,3 @@ def get_publish_metadata(show_code, sequence_code, shot_code, department, versio
     return data
 
 
-print_dict(get_publish_metadata("BOBO","A","010","fx","v020"))
