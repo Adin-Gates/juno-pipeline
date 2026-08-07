@@ -66,7 +66,9 @@ def test_list_publishes_empty(tmp_path, monkeypatch):
     assert results == []
 
 
-def test_list_publishes_directory_not_found():
+def test_list_publishes_directory_not_found(tmp_path, monkeypatch):
+    monkeypatch.setenv("JUNO_SHOW_ROOT", str(tmp_path))
+    monkeypatch.setenv("JUNO_PIPELINE_ROOT", str(Path(__file__).parent.parent))
 
     with pytest.raises(FileNotFoundError):
         list_publishes("TEST", "A", "010", "fx")
@@ -102,7 +104,9 @@ def test_latest_publish_no_versions(tmp_path, monkeypatch):
     assert results == ""
 
 
-def test_latest_publish_directory_not_found():
+def test_latest_publish_directory_not_found(tmp_path, monkeypatch):
+    monkeypatch.setenv("JUNO_SHOW_ROOT", str(tmp_path))
+    monkeypatch.setenv("JUNO_PIPELINE_ROOT", str(Path(__file__).parent.parent))
 
     with pytest.raises(FileNotFoundError):
         latest_publish("TEST", "A", "010", "fx")
