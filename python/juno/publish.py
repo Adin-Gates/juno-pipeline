@@ -66,11 +66,3 @@ def publish(source, show_code, sequence_code, shot_code, department, comment):
     metadata_path.chmod(0o444)
 
     return Path(published_file_path)
-
-
-source = get_show_root() / "BOBO" / "sequences" / "A" / "010" / "fx" / "_work" / "test.py"
-
-
-x = publish(source, "BOBO","A","010","fx","This is a test publish.")
-
-print(x)
