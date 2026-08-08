@@ -134,6 +134,10 @@
                     "default": 1
                 }
             }
+        },
+        "asset_department": {
+            "type": "string",
+            "enum": ["mod","rig","tex"]
         }
     }
 }

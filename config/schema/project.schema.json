@@ -45,21 +45,57 @@
             "description": "Which asset and shot departments will be included in this show's pipeline.",
             "properties": {
                 "asset": {
-                    "type": "array",
-                    "description": "Short codes for which asset departments to include in this show's pipeline.",
-                    "items": {
-                        "type": "string",
-                        "enum": [
-                            "mod",
-                            "rig",
-                            "shd"
-                        ]
-                    },
-                    "default": [
-                        "mod",
-                        "rig",
-                        "shd"
-                    ]
+                    "type": "object",
+                    "description": "Types of assets with arrays of which departments are utlized per type of asset.",
+                    "properties": {
+                        "character": {
+                            "type": "array",
+                            "description": "Assets with type 'Character' utlize this array of departments.",
+                            "items": {
+                                "$ref": "common.schema.json#/$defs/asset_department"
+                            },
+                            "default": [
+                                "mod",
+                                "rig",
+                                "tex"
+                            ]
+                        },
+                        "prop": {
+                            "type": "array",
+                            "description": "Assets with type 'Prop' utlize this array of departments.",
+                            "items": {
+                                "$ref": "common.schema.json#/$defs/asset_department"
+                            },
+                            "default": [
+                                "mod",
+                                "rig",
+                                "tex"
+                            ]
+                        },
+                        "environment": {
+                            "type": "array",
+                            "description": "Assets with type 'Environment' utlize this array of departments.",
+                            "items": {
+                                "$ref": "common.schema.json#/$defs/asset_department"
+                            },
+                            "default": [
+                                "mod",
+                                "tex"
+                            ]
+                        },
+                        "vehicle": {
+                            "type": "array",
+                            "description": "Assets with type 'Vehicle' utlize this array of departments.",
+                            "items": {
+                                "$ref": "common.schema.json#/$defs/asset_department"
+                            },
+                            "default": [
+                                "mod",
+                                "rig",
+                                "tex"
+                            ]
+                        }
+                    }
                 },
                 "shot": {
                     "type": "array",

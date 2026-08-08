@@ -1,7 +1,7 @@
 {
     "$schema": "../schema/asset.schema.json",
     "name": "Test Asset",
-    "type": "vehicle",
+    "type": "character",
     "departments": [
         "mod",
         "rig",

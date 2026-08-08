@@ -23,18 +23,13 @@
         },
         "departments": {
             "type": "array",
-            "description": "Departments neccesary for creating this asset.",
+            "description": "Departments utilized in creating this asset.",
             "items": {
-                "type": "string",
-                "enum": [
-                    "mod",
-                    "rig",
-                    "tex"
-                ]
+                "$ref": "common.schema.json#/$defs/asset_department"
             },
             "default": [
                 "mod",
-                "text"
+                "tex"
             ]
         }
     },

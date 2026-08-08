@@ -34,11 +34,12 @@
         "view": "ACES 2.0 - SDR Video"
     },
     "departments": {
-        "asset": [
-            "mod",
-            "rig",
-            "shd"
-        ],
+        "asset": {
+            "character": ["mod","rig","tex"],
+            "prop": ["mod","rig","tex"],
+            "environment": ["mod","tex"],
+            "vehicle": ["mod","rig","tex"]
+        },
         "shot": [
             "prv",
             "lay",

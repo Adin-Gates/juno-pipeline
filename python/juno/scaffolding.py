@@ -117,3 +117,21 @@ def scaffold_shot(show_code, sequence_code, shot_code):
 
 
 
+
+
+
+
+
+
+
+
+
+def scaffold_asset(show_code, asset_name, asset_type):
+
+
+    asset_name_dir_path = resolve_template("asset_name_dir",show_code=show_code,asset_name=asset_name,asset_type=asset_type)
+
+    if not resolve_template("show_code_dir",show_code=show_code).exists():
+        raise FileNotFoundError("Show doesn't exist. Cancelling asset scaffolding.")
+
+    asset_name_dir_path.mkdir(parent=True, exist_ok=True)
