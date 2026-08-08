@@ -1,6 +1,8 @@
 from pathlib import Path
 import pytest
-from juno.scaffolding import scaffold_show,scaffold_sequence,scaffold_shot
+from juno.scaffolding import scaffold_show,scaffold_sequence,scaffold_shot, scaffold_asset
+
+
 
 
 # Set up a fixture for the environment variables
@@ -116,3 +118,77 @@ def test_scaffold_shot_existing_shot(juno_env):
 
     with pytest.raises(FileExistsError):
         scaffold_shot("TEST", "A", "150")
+
+
+
+
+
+# ASSET_SCAFFOLDING TESTS
+
+
+def test_asset_scaffold_good(juno_env):
+
+    scaffold_show("TEST","Test Show")
+    scaffold_asset("TEST","character","test_asset")
+
+    assert(juno_env / "TEST" / "assets" / "character" / "test_asset").exists()
+
+    assert(juno_env / "TEST" / "assets" / "character" / "test_asset" / "mod").exists()
+    assert(juno_env / "TEST" / "assets" / "character" / "test_asset" / "mod" / "_work").exists()
+    assert(juno_env / "TEST" / "assets" / "character" / "test_asset" / "mod" / "_publish").exists()
+
+    assert(juno_env / "TEST" / "assets" / "character" / "test_asset" / "rig").exists()
+    assert(juno_env / "TEST" / "assets" / "character" / "test_asset" / "rig" / "_work").exists()
+    assert(juno_env / "TEST" / "assets" / "character" / "test_asset" / "rig" / "_publish").exists()
+
+    assert(juno_env / "TEST" / "assets" / "character" / "test_asset" / "tex").exists()
+    assert(juno_env / "TEST" / "assets" / "character" / "test_asset" / "tex" / "_work").exists()
+    assert(juno_env / "TEST" / "assets" / "character" / "test_asset" / "tex" / "_publish").exists()
+
+    assert(juno_env / "TEST" / "assets" / "character" / "test_asset" / "config").exists()
+    assert(juno_env / "TEST" / "assets" / "character" / "test_asset" / "config" / "asset.json").exists()
+
+
+def test_asset_scaffold_good_environment(juno_env):
+
+    scaffold_show("TEST","Test Show")
+    scaffold_asset("TEST","environment","test_asset")
+
+    assert(juno_env / "TEST" / "assets" / "environment" / "test_asset").exists()
+
+    assert(juno_env / "TEST" / "assets" / "environment" / "test_asset" / "mod").exists()
+    assert(juno_env / "TEST" / "assets" / "environment" / "test_asset" / "mod" / "_work").exists()
+    assert(juno_env / "TEST" / "assets" / "environment" / "test_asset" / "mod" / "_publish").exists()
+
+    assert not (juno_env / "TEST" / "assets" / "environment" / "test_asset" / "rig").exists()
+
+    assert(juno_env / "TEST" / "assets" / "environment" / "test_asset" / "tex").exists()
+    assert(juno_env / "TEST" / "assets" / "environment" / "test_asset" / "tex" / "_work").exists()
+    assert(juno_env / "TEST" / "assets" / "environment" / "test_asset" / "tex" / "_publish").exists()
+
+    assert(juno_env / "TEST" / "assets" / "environment" / "test_asset" / "config").exists()
+    assert(juno_env / "TEST" / "assets" / "environment" / "test_asset" / "config" / "asset.json").exists()
+
+
+def test_asset_scaffold_show_not_found(juno_env):
+
+    with pytest.raises(FileNotFoundError):
+        scaffold_asset("TEST","character","test_asset")
+
+
+def test_asset_scaffold_asset_exists(juno_env):
+
+    scaffold_show("TEST","Test Show")
+    scaffold_asset("TEST","character","test_asset")
+
+    with pytest.raises(FileExistsError):
+        scaffold_asset("TEST","character","test_asset")
+
+
+def test_asset_scaffold_type_not_found(juno_env):
+
+    scaffold_show("TEST","Test Show")
+
+    with pytest.raises(ValueError):
+        scaffold_asset("TEST","fake_type","test_asset")
+

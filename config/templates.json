@@ -15,6 +15,7 @@
     "assets_dir": "{show_code}/assets",
     "asset_type_dir": "{show_code}/assets/{asset_type}",
     "asset_name_dir": "{show_code}/assets/{asset_type}/{asset_name}",
+    "asset_config_file": "{show_code}/assets/{asset_type}/{asset_name}/config/asset.json",
     "asset_work_dir": "{show_code}/assets/{asset_type}/{asset_name}/{department}/_work",
     "asset_publish_dir": "{show_code}/assets/{asset_type}/{asset_name}/{department}/_publish",
     "asset_publish_metadata": "{show_code}/assets/{asset_type}/{asset_name}/{department}/_publish/{version}/metadata.json"

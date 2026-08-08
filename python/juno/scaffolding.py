@@ -1,7 +1,8 @@
 import json
 from pathlib import Path
 from juno.paths import resolve_template, get_pipeline_root, get_show_root
-from juno.config import shot_resolver
+from juno.config import shot_resolver, project_config_resolver
+from juno.utils import load_config
 
 
 # scaffold_show : Takes a show_code and title. Creates a new show_code directory in the show directory if the show_code directory doesn't already exist. Creates project.json.
@@ -121,17 +122,54 @@ def scaffold_shot(show_code, sequence_code, shot_code):
 
 
 
-
-
-
-
-
-def scaffold_asset(show_code, asset_name, asset_type):
-
-
-    asset_name_dir_path = resolve_template("asset_name_dir",show_code=show_code,asset_name=asset_name,asset_type=asset_type)
+# scaffold_asset : Given a valid show code, valid asset type, and asset name this will create the directories and config needed for an asset.
+def scaffold_asset(show_code, asset_type, asset_name):
 
     if not resolve_template("show_code_dir",show_code=show_code).exists():
         raise FileNotFoundError("Show doesn't exist. Cancelling asset scaffolding.")
 
-    asset_name_dir_path.mkdir(parent=True, exist_ok=True)
+    asset_name_dir_path = resolve_template("asset_name_dir",show_code=show_code,asset_name=asset_name,asset_type=asset_type)
+
+    if asset_name_dir_path.exists():
+        raise FileExistsError("Asset already exists in this show. Please use a different name. Cancelling asset scaffolding.")
+
+    # Getting project.json config to check what asset types are allowed in given show.
+    project_config_path = resolve_template("project_config_file",show_code=show_code)
+    project_config = project_config_resolver(project_config_path)
+
+    if not asset_type in project_config["departments"]["asset"]:
+        raise ValueError(f"Asset type '{asset_type}' is not a valid type. Cancelling asset scaffolding")
+
+
+    departments = project_config["departments"]["asset"][asset_type]
+
+    pipeline_root_dir = get_pipeline_root()
+
+    schema_path = Path(pipeline_root_dir) / "config" / "schema" / "asset.schema.json"
+
+    asset_config_data = {
+        "$schema": str(schema_path),
+        "name": asset_name,
+        "type": asset_type,
+        "departments": departments
+    }
+
+    # Create asset_name directory in the show and asset_type directories
+    asset_name_dir_path.mkdir(parents=True)
+
+    asset_config_file = resolve_template("asset_config_file",show_code=show_code,asset_type=asset_type,asset_name=asset_name)
+
+    #Create the directory where asset.json config will go
+    asset_config_file.parent.mkdir(parents=True)
+
+    # Write asset config in new asset.json
+    with open(asset_config_file, "w") as f:
+        json.dump(asset_config_data, f, indent=4)
+
+    # Iterate over given departments to create _work and _publish directories for each department
+    for department in departments:
+        asset_work_dir = resolve_template("asset_work_dir",show_code=show_code,asset_type=asset_type,asset_name=asset_name,department=department)
+        asset_publish_dir = resolve_template("asset_publish_dir",show_code=show_code,asset_type=asset_type,asset_name=asset_name,department=department)
+
+        asset_work_dir.mkdir(parents=True)
+        asset_publish_dir.mkdir(parents=True)
