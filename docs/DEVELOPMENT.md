@@ -29,3 +29,7 @@ Requires Python 3.13.
 ### Linux Workstation Setup
     nvidia driver version 580DKMS - if we update kernel this could break
     /show UUID - aac52f71-3791-407d-b659-4d528b3fb356
+
+    Autodesk maya needed an Identity Manager update to 1.15 or higher.
+    Needed to be X11 instead of Wayland
+    Make sure to run in terminal to check if any libraries are missing
