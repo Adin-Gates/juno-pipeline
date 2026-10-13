@@ -6,15 +6,18 @@ build-backend = "setuptools.build_meta"
 name = "juno"
 version = "0.1.0"
 description = "A Houdini-centric VFX/animation pipeline"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "jsonschema",
-    "PySide6",
+    "referencing",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
+]
+gui = [
+    "PySide6",
 ]
 
 [tool.setuptools.packages.find]
