@@ -1,5 +1,6 @@
 import os
 import tomllib
+import subprocess
 from pathlib import Path
 
 
@@ -69,7 +70,29 @@ def needs_install(deps_dir, dependencies):
 
 
 
-def ensure_maya_dependencies
+def ensure_maya_dependencies(mayapy, deps_dir, pyproject_path, run=subprocess.run):
+
+    dependencies_list = read_dependencies(pyproject_path)
+
+    if not needs_install(deps_dir, dependencies_list):
+        return False
+
+    Path(deps_dir).mkdir(parents=True, exist_ok=True)
+
+    command = build_pip_command(mayapy, deps_dir, dependencies_list)
+
+    run(command, check=True)
+
+    marker_path = Path(deps_dir) / MARKER_NAME
+
+    marker_content = "\n".join(sorted(dependencies_list))
+
+    marker_path.write_text(marker_content)
+
+    return True
+
+    
+    
 
 
 

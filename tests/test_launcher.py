@@ -1,6 +1,7 @@
 import pytest
 import os
-from juno.launcher import build_maya_env, read_dependencies, build_pip_command, needs_install, MARKER_NAME
+import subprocess
+from juno.launcher import build_maya_env, read_dependencies, build_pip_command, needs_install, MARKER_NAME, ensure_maya_dependencies
 from pathlib import Path
 
 
@@ -105,3 +106,104 @@ def test_needs_install_marker_wrong(tmp_path):
     result = needs_install(tmp_path, ["test1","test2","test3"])
 
     assert result == True
+
+
+
+
+def test_ensure_maya_dependencies_fresh_install(tmp_path):
+
+    calls = []
+
+    def fake_run(command, check=False):
+        calls.append(command)
+
+    pyproject_path = tmp_path / "pyproject.toml"
+    pyproject_path.write_text('[project]\ndependencies = ["beta", "alpha"]\n')
+
+    deps_dir = tmp_path / "deps"
+
+    mayapy = "/usr/autodesk/maya2026/bin/mayapy"
+
+    result = ensure_maya_dependencies(mayapy, deps_dir, pyproject_path, run=fake_run)
+
+    assert result == True
+
+    assert calls == [[mayapy, "-m", "pip", "install", "--target", str(deps_dir), "beta", "alpha"]]
+
+    assert (deps_dir / MARKER_NAME).read_text() == "alpha\nbeta"
+
+
+def test_ensure_maya_dependencies_already_installed(tmp_path):
+
+    calls = []
+
+    def fake_run(command, check=False):
+        calls.append(command)
+
+    pyproject_path = tmp_path / "pyproject.toml"
+    pyproject_path.write_text('[project]\ndependencies = ["beta", "alpha"]\n')
+
+    deps_dir = tmp_path / "deps"
+    deps_dir.mkdir()
+
+    mayapy = "/usr/autodesk/maya2026/bin/mayapy"
+
+    marker = deps_dir / MARKER_NAME
+    marker.write_text("alpha\nbeta")
+
+    result = ensure_maya_dependencies(mayapy, deps_dir, pyproject_path, run=fake_run)
+
+    assert result == False
+    assert calls == []
+
+
+def test_ensure_maya_dependencies_mismatched_installed(tmp_path):
+
+    calls = []
+
+    def fake_run(command, check=False):
+        calls.append(command)
+
+    pyproject_path = tmp_path / "pyproject.toml"
+    pyproject_path.write_text('[project]\ndependencies = ["beta", "alpha"]\n')
+
+    deps_dir = tmp_path / "deps"
+    deps_dir.mkdir()
+
+    mayapy = "/usr/autodesk/maya2026/bin/mayapy"
+
+    marker = deps_dir / MARKER_NAME
+    marker.write_text("alpha")
+
+    result = ensure_maya_dependencies(mayapy, deps_dir, pyproject_path, run=fake_run)
+
+    assert result == True
+
+    assert calls == [[mayapy, "-m", "pip", "install", "--target", str(deps_dir), "beta", "alpha"]]
+
+    assert (deps_dir / MARKER_NAME).read_text() == "alpha\nbeta"
+
+
+def test_ensure_maya_dependencies_pip_fails(tmp_path):
+
+    calls = []
+
+    def fake_run(command, check=False):
+        if check:
+            raise subprocess.CalledProcessError(1, command)
+
+    pyproject_path = tmp_path / "pyproject.toml"
+    pyproject_path.write_text('[project]\ndependencies = ["beta", "alpha"]\n')
+
+    deps_dir = tmp_path / "deps"
+    deps_dir.mkdir()
+
+    mayapy = "/usr/autodesk/maya2026/bin/mayapy"
+
+    marker = deps_dir / MARKER_NAME
+
+
+    with pytest.raises(subprocess.CalledProcessError):
+        ensure_maya_dependencies(mayapy, deps_dir, pyproject_path, run=fake_run)
+
+    assert not (marker.exists())
