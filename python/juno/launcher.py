@@ -106,7 +106,7 @@ def launch_maya(maya_root, pipeline_root, show_root, base_env, run=subprocess.ru
 
     env = build_maya_env(pipeline_root,show_root,deps_dir,base_env)
 
-    start(maya_program, env=env)
+    return start([str(maya_program)], env=env)
 
 
 
@@ -115,8 +115,8 @@ def launch_maya(maya_root, pipeline_root, show_root, base_env, run=subprocess.ru
 
 
 
-#if __name__ == "__main__":
-#    print(needs_install("/fake/deps_dir",["test1","test2"]))
+if __name__ == "__main__":
+    launch_maya("/usr/autodesk/maya2026", os.environ["JUNO_PIPELINE_ROOT"], os.environ["JUNO_SHOW_ROOT"], dict(os.environ),)
 
 
 
