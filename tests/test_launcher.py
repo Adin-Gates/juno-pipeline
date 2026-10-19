@@ -1,7 +1,7 @@
 import pytest
 import os
 import subprocess
-from juno.launcher import build_maya_env, read_dependencies, build_pip_command, needs_install, MARKER_NAME, ensure_maya_dependencies
+from juno.launcher import build_maya_env, read_dependencies, build_pip_command, needs_install, MARKER_NAME, ensure_maya_dependencies, launch_maya
 from pathlib import Path
 
 
@@ -110,6 +110,10 @@ def test_needs_install_marker_wrong(tmp_path):
 
 
 
+
+
+
+
 def test_ensure_maya_dependencies_fresh_install(tmp_path):
 
     calls = []
@@ -207,3 +211,93 @@ def test_ensure_maya_dependencies_pip_fails(tmp_path):
         ensure_maya_dependencies(mayapy, deps_dir, pyproject_path, run=fake_run)
 
     assert not (marker.exists())
+
+
+
+
+
+
+
+
+def test_launch_maya(tmp_path):
+
+    pipeline_root = tmp_path / "pipeline_root"
+    pipeline_root.mkdir()
+
+    pyproject_path = pipeline_root / "pyproject.toml"
+    pyproject_path.write_text('[project]\ndependencies = ["beta", "alpha"]\n')
+
+    show_root = "/fake/show"
+
+    maya_root = "/fake/maya"
+
+    base_env = {"HOME": "/fake/home"}
+
+    run_calls = []
+    start_calls = []
+
+
+    def fake_run(command, check=True):
+        run_calls.append(command)
+
+    def fake_start(command, env=None):
+        start_calls.append((command, env))
+
+
+    deps_dir = pipeline_root / "vendor" / "maya-py311"
+
+
+    result = launch_maya(maya_root, pipeline_root, show_root, base_env, run=fake_run, start=fake_start)
+
+    assert len(run_calls) == 1
+    assert run_calls[0][0] == str(Path("/fake/maya") / "bin" / "mayapy")
+
+    assert len(start_calls) == 1
+    command, env = start_calls[0]
+
+    assert command == [str(Path("/fake/maya") / "bin" / "maya")]
+    assert env["HOME"] == "/fake/home"
+    assert env["JUNO_SHOW_ROOT"] == "/fake/show"
+    assert env["PYTHONPATH"] == os.pathsep.join([str(pipeline_root / "python"), str(deps_dir)])
+
+
+
+
+
+
+
+
+
+def test_launch_maya_sequence(tmp_path):
+
+    pipeline_root = tmp_path / "pipeline_root"
+    pipeline_root.mkdir()
+
+    pyproject_path = pipeline_root / "pyproject.toml"
+    pyproject_path.write_text('[project]\ndependencies = ["beta", "alpha"]\n')
+
+    show_root = "/fake/show"
+
+    maya_root = "/fake/maya"
+
+    base_env = {"HOME": "/fake/home"}
+
+    events = []
+
+
+    def fake_run(command, check=True):
+        events.append("run")
+
+    def fake_start(command, env=None):
+        events.append("start")
+
+
+    deps_dir = pipeline_root / "vendor" / "maya-py311"
+
+
+    result = launch_maya(maya_root, pipeline_root, show_root, base_env, run=fake_run, start=fake_start)
+
+    assert events[0] == "run"
+    assert events[1] == "start"
+
+
