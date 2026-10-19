@@ -93,6 +93,20 @@ def ensure_maya_dependencies(mayapy, deps_dir, pyproject_path, run=subprocess.ru
 
     
     
+def launch_maya(maya_root, pipeline_root, show_root, base_env, run=subprocess.run, start=subprocess.Popen):
+
+
+    mayapy = Path(maya_root) / "bin" / "mayapy"
+    maya_program = Path(maya_root) / "bin" / "maya"
+
+    deps_dir = Path(pipeline_root) / "vendor" / "maya-py311"
+    pyproject_path = Path(pipeline_root) / "pyproject.toml"
+
+    ensure_maya_dependencies(mayapy, deps_dir, pyproject_path, run=run)
+
+    env = build_maya_env(pipeline_root,show_root,deps_dir,base_env)
+
+    start(maya_program, env=env)
 
 
 
@@ -100,8 +114,9 @@ def ensure_maya_dependencies(mayapy, deps_dir, pyproject_path, run=subprocess.ru
 
 
 
-if __name__ == "__main__":
-    print(needs_install("/fake/deps_dir",["test1","test2"]))
+
+#if __name__ == "__main__":
+#    print(needs_install("/fake/deps_dir",["test1","test2"]))
 
 
 
