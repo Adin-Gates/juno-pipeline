@@ -1,5 +1,20 @@
 import json
 
+
+
+
+# Takes a given string and returns it with green coloring
+def green_text(text):
+    return f"\033[92m{text}\033[0m"
+
+
+# Takes a given string and returns it with red coloring
+def red_text(text):
+    return f"\033[91m{text}\033[0m"
+
+
+
+
 # load_config : takes a path to a JSON file and returns said JSON file as a dict without the "$schema"
 def load_config(path):
 

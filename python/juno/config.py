@@ -3,18 +3,11 @@ from jsonschema import validate, Draft202012Validator
 from referencing import Registry, Resource
 from jsonschema.exceptions import ValidationError
 from pathlib import Path
-from juno.utils import load_config, load_schema
+from juno.utils import load_config, load_schema, green_text, red_text
 from juno.paths import resolve_template, get_show_root, get_pipeline_root
 
 
-# Takes a given string and returns it with green coloring
-def green_text(text):
-    return f"\033[92m{text}\033[0m"
 
-
-# Takes a given string and returns it with red coloring
-def red_text(text):
-    return f"\033[91m{text}\033[0m"
 
 
 # validate_config : Takes in a config and it's schema, raises an error if the config isn't in line with the given schema.
