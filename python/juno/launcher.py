@@ -131,6 +131,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()   
 
+
+    if not args.show_root:
+        parser.error("Missing show_root value.")
+
+
     print("")
     print(f"Launching {green_text('Juno Maya')} Instance...")
     print("")
