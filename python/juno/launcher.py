@@ -1,10 +1,16 @@
 import os
 import tomllib
 import subprocess
+import sys
+import argparse
 from pathlib import Path
+from juno.utils import green_text, red_text
 
 
 def build_maya_env(pipeline_root, show_root, deps_dir, base_env):
+
+    if not show_root:
+        raise ValueError("build_maya_env: show_root is 'None' or otherwise not valid")
 
     maya_env = dict(base_env)
 
@@ -106,7 +112,7 @@ def launch_maya(maya_root, pipeline_root, show_root, base_env, run=subprocess.ru
 
     env = build_maya_env(pipeline_root,show_root,deps_dir,base_env)
 
-    return start([str(maya_program)], env=env)
+    return start([str(maya_program)], env=env, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
 
 
 
@@ -116,7 +122,30 @@ def launch_maya(maya_root, pipeline_root, show_root, base_env, run=subprocess.ru
 
 
 if __name__ == "__main__":
-    launch_maya("/usr/autodesk/maya2026", os.environ["JUNO_PIPELINE_ROOT"], os.environ["JUNO_SHOW_ROOT"], dict(os.environ),)
+    
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--maya-root", default="/usr/autodesk/maya2026")
+    parser.add_argument("--pipeline-root", default=Path(__file__).parent.parent.parent)
+    parser.add_argument("--show-root", default=os.environ.get("JUNO_SHOW_ROOT"))
+
+    args = parser.parse_args()   
+
+    print("")
+    print(f"Launching {green_text('Juno Maya')} Instance...")
+    print("")
+    print(f"Given Maya root -> {args.maya_root}")
+    print(f"Given Juno Pipeline root -> {args.pipeline_root}")
+    print(f"Given Show root -> {args.show_root}")
+
+    launch_maya(args.maya_root, args.pipeline_root, args.show_root, dict(os.environ))
+
+    print("")
+    print(f"Starting {green_text('Juno Maya')} Instance...")
+
+    
+    
+
 
 
 

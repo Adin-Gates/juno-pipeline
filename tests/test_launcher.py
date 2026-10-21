@@ -32,6 +32,12 @@ def test_build_maya_env_existing_pythonpath():
 
     assert result["PYTHONPATH"] == os.pathsep.join([str(Path("/fake/pipeline") / "python"), "/fake/deps", "/fake/old"])
 
+def test_build_maya_env_empty_show_root():
+
+    base_env = {"HOME": "/fake/home"}
+
+    with pytest.raises(ValueError):
+        build_maya_env("/fake/pipeline", "", "/fake/deps", base_env)
 
 
 
@@ -240,8 +246,8 @@ def test_launch_maya(tmp_path):
     def fake_run(command, check=True):
         run_calls.append(command)
 
-    def fake_start(command, env=None):
-        start_calls.append((command, env))
+    def fake_start(command, env=None, **kwargs):
+        start_calls.append((command, env, kwargs))
 
 
     deps_dir = pipeline_root / "vendor" / "maya-py311"
@@ -253,7 +259,7 @@ def test_launch_maya(tmp_path):
     assert run_calls[0][0] == str(Path("/fake/maya") / "bin" / "mayapy")
 
     assert len(start_calls) == 1
-    command, env = start_calls[0]
+    command, env, kwargs = start_calls[0]
 
     assert command == [str(Path("/fake/maya") / "bin" / "maya")]
     assert env["HOME"] == "/fake/home"
@@ -288,7 +294,7 @@ def test_launch_maya_sequence(tmp_path):
     def fake_run(command, check=True):
         events.append("run")
 
-    def fake_start(command, env=None):
+    def fake_start(command, env=None, **kwargs):
         events.append("start")
 
 
