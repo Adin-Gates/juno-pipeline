@@ -1,7 +1,7 @@
 import pytest
 import os
 import subprocess
-from juno.launcher import build_maya_env, read_dependencies, build_pip_command, needs_install, MARKER_NAME, ensure_maya_dependencies, launch_maya
+from juno.maya_launcher import build_maya_env, read_dependencies, build_pip_command, needs_install, MARKER_NAME, ensure_maya_dependencies, launch_maya
 from pathlib import Path
 
 
